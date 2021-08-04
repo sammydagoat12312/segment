@@ -35,7 +35,7 @@ func (db *MongoDB) CreateGuild(user *discordgo.User, guild *discordgo.Guild) {
 		"guild-name":                   guild.Name,
 		"log-channel":                  "nil",
 		"Anti-Nuke-Action":             "ban",
-		"prefix":                       ">",
+		"prefix":                       "%",
 		"users":                        bson.A{guild.OwnerID},
 		"vanity-url":                   guild.VanityURLCode,
 		"whitelisted-webhook-channels": bson.A{},
@@ -144,7 +144,7 @@ func (db *MongoDB) SetWhitelistData(guildID, ID, index, valueKey string) (bool, 
 func SetupDB() MongoDB {
 	var db = MongoDB{}
 
-	db.Client, err = mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017/summrs?retryWrites=true&w=majority"))
+	db.Client, err = mongo.NewClient(options.Client().ApplyURI("mongodb+srv://segment:<Ss20012001>@segmentanti.p2jjx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 
 	if err != nil {
 		panic(err)
@@ -155,7 +155,7 @@ func SetupDB() MongoDB {
 		panic(err)
 	}
 
-	db.Database = db.Client.Database("summrs")
+	db.Database = db.Client.Database("segment")
 	db.Collection = db.Database.Collection("whitelist")
 
 	return db
