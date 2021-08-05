@@ -6,8 +6,8 @@ import (
 	"sync"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/summrs-dev-team/summrs-premium/database"
-	"github.com/summrs-dev-team/summrs-premium/utils"
+	"github.com/sammydagoat12312/segment/database"
+	"github.com/sammydagoat12312/segment/utils"
 )
 
 func AntiInvite(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -217,53 +217,6 @@ func MemberJoin(s *discordgo.Session, event *discordgo.GuildMemberAdd) {
 func MemberLeave(s *discordgo.Session, event *discordgo.GuildMemberRemove) {
 	MemberCount--
 	s.State.MemberRemove(event.Member)
-}
-
-func MemberRoleUpdate(s *discordgo.Session, event *discordgo.GuildMemberUpdate) {
-	data, err := database.Database.FindData(event.GuildID)
-	if err != nil {
-		return
-	}
-
-	if data["anti-member-role"].(bool) == false {
-		return
-	}
-
-	var (
-		entry, change, err2 = utils.FindAudit(s, event.GuildID, 25)
-	)
-
-	if err2 != nil || change == nil || len(change.([]interface{})) == 0 {
-		return
-	}
-
-	roleID := change.([]interface{})[0].(map[string]interface{})["id"].(string)
-
-	guildRole, err := s.State.Role(event.GuildID, roleID)
-	if err != nil {
-		return
-	}
-
-	if guildRole.Permissions&0x8 != 0x8 {
-		return
-	}
-
-	err = s.GuildMemberRoleRemove(event.GuildID, entry.TargetID, roleID)
-	if err != nil {
-		return
-	}
-
-	err = utils.HandleModeration(s, event.GuildID, entry.UserID, fmt.Sprintf("%s | gave a member an admin role", s.State.User.Username))
-	if err != nil {
-		return
-	}
-
-	utils.LogChannel(s, event.GuildID, fmt.Sprintf("<@%s> gave a member an admin role", entry.UserID))
-}
-
-func Ready(s *discordgo.Session, event *discordgo.Ready) {
-	s.UpdateStreamingStatus(2, fmt.Sprintf(">help | Shard #%d", s.ShardID), "https://twitch.tv/discord")
-	fmt.Printf("Connected to shard #%d\n", s.ShardID)
 }
 
 func RoleCreate(s *discordgo.Session, event *discordgo.GuildRoleCreate) {
